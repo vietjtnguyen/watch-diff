@@ -28,13 +28,13 @@ EOF
 
 DESCRIPTION
 
-This program will execute the provided command at a regular interval (time defined by the -i option) and print the output of the command to standard out. It prints out both "snapshots" which are the full output of the command as well as "diffs" which are the diffs between the latest command output and the last one. How often a snapshot is printed is controlled with the -s option.
+This program will execute the provided command at a regular interval (time defined by the -i option). On the first invocation the entire command output (which we call a "snapshot") is printed. In subsequent invocations only the diff with the previous output is printed. If the diff is empty then nothing is printed. A timestamp (produced by 'date -u "+%s.%N (%Y-%m-%dT%H:%M:%S.%N)"') is printed before any snapshot or diff is printed (except on empty diffs). At regular intervals (controlled with the -s option) a "snapshot", which is just the full output of the command, is printed instead of the diff (think I-frames in video encoding).
 
     -D DIFF_OPTIONS
-        Options to send to diff. If the command output changes whitespace often (like ss) then useful diff options to use are "-B -Z -b" which are ignore blank lines, ignore trailing whitespace, and ignore changes in amount of whitespace.
+        Options to send to diff. If the command output changes whitespace often (like ss with its output table formatting) then useful diff options to use are "-B -Z -b" which are ignore blank lines, ignore trailing whitespace, and ignore changes in amount of whitespace.
 
     -I IDENTIFIER
-        Identifier output before timestamp to search for to help separate output. (default: WATCHDIFF)
+        Identifier output before timestamp to help with searching/parsing through the output. (default: WATCHDIFF)
 
     -S COMMAND_SHELL
         If specified the command is invoked with the provided shell by running \$COMMAND_SHELL -c "\$*". By default the command is invoked directly in this bash script by running "\$@".
