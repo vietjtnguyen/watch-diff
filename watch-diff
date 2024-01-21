@@ -18,7 +18,8 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-readonly PROGRAM_NAME=$(basename $0)
+PROGRAM_NAME="$(basename "${0}")"
+readonly PROGRAM_NAME
 function print_usage() {
   cat <<EOF
 usage: ${PROGRAM_NAME} [OPTIONS] -- COMMAND...
@@ -95,20 +96,20 @@ while getopts ':D:I:S:hi:s:' OPTION; do
       ;;
   esac
 done
-shift "$(($OPTIND -1))"
+shift "$((OPTIND -1))"
 
 BUFFER_PREFIX="$(mktemp)"
 CURR_BUFFER="0"
 SNAPSHOT_COUNT="0"
 while true; do
-  PREV_BUFFER="$((1 - ${CURR_BUFFER}))"
+  PREV_BUFFER="$((1 - CURR_BUFFER))"
   CURR_BUFFER_FILE="${BUFFER_PREFIX}-${CURR_BUFFER}"
   PREV_BUFFER_FILE="${BUFFER_PREFIX}-${PREV_BUFFER}"
   DIFF_FILE="${BUFFER_PREFIX}-diff"
   if [ "${SNAPSHOT_INTERVAL}" -gt 0 ]; then
-    SNAPSHOT_COUNT="$((${SNAPSHOT_COUNT} + 1))"
+    SNAPSHOT_COUNT="$((SNAPSHOT_COUNT + 1))"
   else
-    SNAPSHOT_COUNT="$((${SNAPSHOT_INTERVAL} - 1))"
+    SNAPSHOT_COUNT="$((SNAPSHOT_INTERVAL - 1))"
   fi
 
   if [ -z "${COMMAND_SHELL}" ]; then
@@ -118,6 +119,7 @@ while true; do
   fi
 
   if stat "${PREV_BUFFER_FILE}" 1>/dev/null 2>/dev/null && [ "${SNAPSHOT_COUNT}" -lt "${SNAPSHOT_INTERVAL}" ]; then
+    # shellcheck disable=SC2086
     if ! diff $DIFF_OPTIONS "${PREV_BUFFER_FILE}" "${CURR_BUFFER_FILE}" 1>"${DIFF_FILE}"; then
       echo -n "${IDENTIFIER} "
       date -u '+%s.%N (%Y-%m-%dT%H:%M:%S.%N)'
@@ -130,7 +132,7 @@ while true; do
     SNAPSHOT_COUNT="0"
   fi
 
-  CURR_BUFFER="$((1 - ${CURR_BUFFER}))"
+  CURR_BUFFER="$((1 - CURR_BUFFER))"
 
   sleep "${INTERVAL_SEC}"
 done
